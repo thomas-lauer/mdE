@@ -17,6 +17,7 @@
 - Fuer den NSIS-Installer trat das gleiche Rename-Problem im lokalen electron-builder-Cache auf. Nach manuellem Umbenennen der vollstaendig entpackten Cache-Ordner `nsis-3.0.4.1-...tmp` und `nsis-resources-3.4.1-...tmp` lief `npm run electron:dist` erfolgreich durch.
 - Externe Links in der Electron-App duerfen nicht die lokale Editor-Ansicht ersetzen. Der GitHub-Link wird deshalb ueber `setWindowOpenHandler` abgefangen und mit `shell.openExternal` im Standardbrowser geoeffnet.
 - Startargumente fuer die Electron-EXE muessen im Main-Prozess verarbeitet werden, damit der Renderer keinen direkten Dateisystemzugriff bekommt. Die Datei wird ueber IPC an den Renderer uebergeben und bleibt als aktueller Speicherpfad erhalten.
+- Die neue Versionierung nutzt SemVer-kompatible Hauptversionen wie `2.0.0`, zeigt nach aussen aber Version `2`. Der GitHub-Workflow erhoeht bei normalen Pushes auf `main` automatisch die Hauptversion.
 
 ## Entscheidungen
 

@@ -44,6 +44,8 @@ In der Electron-Variante laufen Dateioperationen ueber den Main-Prozess. Der Ren
 
 Beim Start kann der EXE eine `.md`- oder `.markdown`-Datei als Argument uebergeben werden. Der Main-Prozess liest diese Datei ein, uebergibt Inhalt und Pfad an den Renderer und nutzt denselben Pfad spaeter fuer `Speichern`.
 
+Die App-Version wird als numerische Hauptversion gefuehrt. Version 2 ist der Startpunkt fuer diese Versionierung. Bei normalen Pushes auf `main` erhoeht `.github/workflows/version.yml` die Hauptversion automatisch um `+1`; Commits mit `[skip version]` sind ausgenommen.
+
 ## Design
 
 Die Oberfläche ist arbeitsorientiert, dicht und ruhig. Die wichtigsten Aktionen liegen in der Kopfzeile: Datei hochladen, herunterladen, Beispiel zurücksetzen, Theme wechseln. Direkt über der Schreibfläche liegt eine Symbolleiste für häufige Markdown-Formatierungen. Der Editor und die Vorschau sind als gleichwertige Arbeitsbereiche ausgelegt. Auf kleinen Bildschirmen stapeln sich die Bereiche.

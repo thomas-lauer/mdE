@@ -1,7 +1,7 @@
 {
   "name": "mde",
   "private": true,
-  "version": "0.1.1",
+  "version": "2.0.0",
   "description": "Deutschsprachiger Markdown Editor als Web- und Electron-App.",
   "author": "Thomas Lauer",
   "type": "module",
@@ -54,8 +54,12 @@
       ]
     },
     "nsis": {
+      "artifactName": "mdE Setup.${ext}",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
+    },
+    "portable": {
+      "artifactName": "mdE.${ext}"
     },
     "electronDist": "node_modules/electron/dist"
   }

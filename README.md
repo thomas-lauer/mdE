@@ -60,6 +60,15 @@ Danach liegt die startbare App unter `release/win-unpacked/mdE.exe`. Installer u
 npm run electron:dist
 ```
 
+Die Release-Dateien enthalten bewusst keine Versionsnummer im Dateinamen:
+
+- `release/mdE Setup.exe`
+- `release/mdE.exe`
+
+## Versionierung
+
+Die App nutzt eine numerische Hauptversion. Dieser Stand startet bei Version `2`. Bei jedem normalen Push auf `main` erhöht der Workflow `.github/workflows/version.yml` die Version in `package.json` und `package-lock.json` automatisch um `+1`.
+
 ## Deployment
 
 Das Projekt enthält einen GitHub-Actions-Workflow unter `.github/workflows/pages.yml`. Bei jedem Push auf `main` wird die App gebaut und per GitHub Pages veröffentlicht.
