@@ -21,6 +21,8 @@ declare global {
       openFile: () => Promise<ElectronFileResult>;
       saveFile: (payload: ElectronFilePayload) => Promise<ElectronFileResult>;
       saveFileAs: (payload: ElectronFilePayload) => Promise<ElectronFileResult>;
+      getPendingOpenedFile: () => Promise<ElectronFileResult>;
+      onOpenedFromArgument: (callback: (fileData: NonNullable<ElectronFileResult>) => void) => () => void;
       onMenuCommand: (callback: (command: ElectronMenuCommand) => void) => () => void;
     };
   }

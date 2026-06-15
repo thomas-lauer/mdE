@@ -36,6 +36,14 @@ npm run build
 
 Die Electron-Variante greift direkt auf lokale Dateien zu. Im Desktop-Modus werden die Schaltflächen zu `Öffnen`, `Speichern` und `Speichern unter`; zusätzlich gibt es ein natives Datei-Menü mit `Strg+O`, `Strg+S` und `Strg+Umschalt+S`.
 
+Eine Markdown-Datei kann auch direkt beim Start übergeben werden:
+
+```bash
+mdE.exe "C:\Pfad\zur\datei.md"
+```
+
+Die Datei wird beim Start geöffnet. `Speichern` schreibt danach wieder an denselben Pfad.
+
 ```bash
 npm run electron:dev
 ```

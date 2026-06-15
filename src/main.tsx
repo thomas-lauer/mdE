@@ -85,6 +85,13 @@ function App() {
   const electronApi = window.mdeApi;
   const isElectron = Boolean(electronApi?.isElectron);
 
+  const applyOpenedFile = React.useCallback((result: NonNullable<ElectronFileResult>) => {
+    setMarkdown(result.content ?? '');
+    setFileName(normalizeMarkdownFileName(result.fileName));
+    setCurrentFilePath(result.filePath);
+    setSaveStatus('Gespeichert');
+  }, []);
+
   React.useEffect(() => {
     localStorage.setItem(storageKey, markdown);
   }, [markdown]);
@@ -116,10 +123,7 @@ function App() {
         return;
       }
 
-      setMarkdown(result.content ?? '');
-      setFileName(normalizeMarkdownFileName(result.fileName));
-      setCurrentFilePath(result.filePath);
-      setSaveStatus('Gespeichert');
+      applyOpenedFile(result);
       return;
     }
 
@@ -302,6 +306,29 @@ function App() {
       }
     });
   }, [electronApi, fileName, markdown, currentFilePath]);
+
+  React.useEffect(() => {
+    if (!electronApi) {
+      return undefined;
+    }
+
+    let disposed = false;
+
+    electronApi.getPendingOpenedFile().then((result) => {
+      if (!disposed && result) {
+        applyOpenedFile(result);
+      }
+    });
+
+    const unsubscribe = electronApi.onOpenedFromArgument((result) => {
+      applyOpenedFile(result);
+    });
+
+    return () => {
+      disposed = true;
+      unsubscribe();
+    };
+  }, [electronApi, applyOpenedFile]);
 
   return (
     <main className="app-shell">

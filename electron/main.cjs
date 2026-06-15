@@ -8,6 +8,48 @@ const markdownFilters = [
 ];
 
 let mainWindow;
+let pendingOpenedFile = null;
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+
+function findMarkdownArgument(argv) {
+  const candidate = argv.find((argument) => {
+    return typeof argument === 'string' && !argument.startsWith('-') && /\.(md|markdown)$/i.test(argument);
+  });
+
+  return candidate ? path.resolve(candidate) : null;
+}
+
+async function readMarkdownFile(filePath) {
+  const content = await fs.readFile(filePath, 'utf8');
+
+  return {
+    filePath,
+    fileName: path.basename(filePath),
+    content,
+  };
+}
+
+function sendOpenedFile(fileData) {
+  pendingOpenedFile = fileData;
+
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    return;
+  }
+
+  mainWindow.webContents.send('file:opened-from-argument', fileData);
+}
+
+async function openMarkdownArgument(filePath) {
+  try {
+    const fileData = await readMarkdownFile(filePath);
+    sendOpenedFile(fileData);
+  } catch (error) {
+    dialog.showErrorBox(
+      'Markdown-Datei konnte nicht geoeffnet werden',
+      `${filePath}\n\n${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -38,6 +80,13 @@ function createWindow() {
     }
 
     return { action: 'deny' };
+  });
+
+  mainWindow.webContents.once('did-finish-load', () => {
+    const startupFile = findMarkdownArgument(process.argv);
+    if (startupFile) {
+      void openMarkdownArgument(startupFile);
+    }
   });
 }
 
@@ -117,23 +166,6 @@ async function writeMarkdownFile({ filePath, fileName, content }, forceDialog = 
   };
 }
 
-app.whenReady().then(() => {
-  createMenu();
-  createWindow();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
-});
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
 ipcMain.handle('file:open', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Markdown-Datei oeffnen',
@@ -145,14 +177,7 @@ ipcMain.handle('file:open', async () => {
     return null;
   }
 
-  const filePath = result.filePaths[0];
-  const content = await fs.readFile(filePath, 'utf8');
-
-  return {
-    filePath,
-    fileName: path.basename(filePath),
-    content,
-  };
+  return readMarkdownFile(result.filePaths[0]);
 });
 
 ipcMain.handle('file:save', async (_event, payload) => {
@@ -162,3 +187,46 @@ ipcMain.handle('file:save', async (_event, payload) => {
 ipcMain.handle('file:save-as', async (_event, payload) => {
   return writeMarkdownFile(payload, true);
 });
+
+ipcMain.handle('file:get-pending-opened-file', () => {
+  const fileData = pendingOpenedFile;
+  pendingOpenedFile = null;
+  return fileData;
+});
+
+if (!gotSingleInstanceLock) {
+  app.quit();
+} else {
+  app.whenReady().then(() => {
+    createMenu();
+    createWindow();
+
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+      }
+    });
+  });
+
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  });
+
+  app.on('second-instance', (_event, argv) => {
+    const filePath = findMarkdownArgument(argv);
+
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore();
+      }
+
+      mainWindow.focus();
+    }
+
+    if (filePath) {
+      void openMarkdownArgument(filePath);
+    }
+  });
+}

@@ -40,7 +40,9 @@ Die App übernimmt das fokussierte Editor-Prinzip von Polypost: eine klare Kopfz
 
 Die App verarbeitet Dateien ausschließlich im Browser. Upload bedeutet in diesem Kontext nur das lokale Einlesen einer Datei in die Web-App. Es werden keine Inhalte an einen Server gesendet.
 
-In der Electron-Variante laufen Dateioperationen ueber den Main-Prozess. Der Renderer erhaelt nur die eng begrenzte Preload-API `mdeApi` fuer `openFile`, `saveFile`, `saveFileAs` und Menue-Kommandos. `nodeIntegration` bleibt deaktiviert und `contextIsolation` bleibt aktiviert.
+In der Electron-Variante laufen Dateioperationen ueber den Main-Prozess. Der Renderer erhaelt nur die eng begrenzte Preload-API `mdeApi` fuer `openFile`, `saveFile`, `saveFileAs`, Startdateien und Menue-Kommandos. `nodeIntegration` bleibt deaktiviert und `contextIsolation` bleibt aktiviert.
+
+Beim Start kann der EXE eine `.md`- oder `.markdown`-Datei als Argument uebergeben werden. Der Main-Prozess liest diese Datei ein, uebergibt Inhalt und Pfad an den Renderer und nutzt denselben Pfad spaeter fuer `Speichern`.
 
 ## Design
 
