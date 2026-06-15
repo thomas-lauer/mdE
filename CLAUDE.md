@@ -32,12 +32,15 @@ Die App übernimmt das fokussierte Editor-Prinzip von Polypost: eine klare Kopfz
 - Markdown: `marked` mit GFM-Unterstuetzung
 - Sicherheit: HTML-Sanitizing durch `dompurify`
 - Icons: `lucide-react`
+- Desktop: Electron mit isoliertem Preload-Skript und IPC fuer Dateioperationen
 - Deployment: GitHub Actions mit `actions/deploy-pages`
 - Hosting: GitHub Pages unter `/mdE/`
 
 ## Datenschutz
 
 Die App verarbeitet Dateien ausschließlich im Browser. Upload bedeutet in diesem Kontext nur das lokale Einlesen einer Datei in die Web-App. Es werden keine Inhalte an einen Server gesendet.
+
+In der Electron-Variante laufen Dateioperationen ueber den Main-Prozess. Der Renderer erhaelt nur die eng begrenzte Preload-API `mdeApi` fuer `openFile`, `saveFile`, `saveFileAs` und Menue-Kommandos. `nodeIntegration` bleibt deaktiviert und `contextIsolation` bleibt aktiviert.
 
 ## Design
 

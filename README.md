@@ -9,6 +9,7 @@ mdE ist ein deutschsprachiger, rein clientseitiger Markdown Editor als Web Appli
 - Symbolleiste für schnelle Markdown-Formatierungen
 - Upload von `.md` und `.markdown` Dateien
 - Download des aktuellen Inhalts als Markdown-Datei
+- Electron-Variante für Windows mit direktem Datei-Öffnen und Speichern
 - Dateiname direkt in der Kopfzeile editierbar
 - Helles und dunkles Design
 - Automatische lokale Zwischenspeicherung im Browser
@@ -28,6 +29,26 @@ npm run dev
 
 ```bash
 npm run build
+```
+
+## Electron für Windows
+
+Die Electron-Variante greift direkt auf lokale Dateien zu. Im Desktop-Modus werden die Schaltflächen zu `Öffnen`, `Speichern` und `Speichern unter`; zusätzlich gibt es ein natives Datei-Menü mit `Strg+O`, `Strg+S` und `Strg+Umschalt+S`.
+
+```bash
+npm run electron:dev
+```
+
+Eine entpackte Windows-App wird mit folgendem Befehl erstellt:
+
+```bash
+npm run electron:pack
+```
+
+Danach liegt die startbare App unter `release/win-unpacked/mdE.exe`. Installer und portable EXE werden mit folgendem Befehl erzeugt:
+
+```bash
+npm run electron:dist
 ```
 
 ## Deployment

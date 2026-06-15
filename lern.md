@@ -12,6 +12,9 @@
 - Eine separate TypeScript-Projekt-Referenz für `vite.config.ts` erzeugte Build-Zwischenartefakte und war für diese kleine App unnötig. Der Build nutzt nun `tsc --noEmit` plus `vite build`.
 - Der erste GitHub-Pages-Lauf war erfolgreich, meldete aber eine Warnung zur bevorstehenden Node-20-Actions-Abkündigung. Der Workflow setzt `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` und nutzt die aktuellen Major-Versionen der GitHub-Actions.
 - Markdown kennt keine native Unterstreichung. Die Toolbar nutzt dafür bewusst `<u>...</u>`, das in der bereinigten Vorschau gerendert wird.
+- Beim ersten Electron-Packaging-Versuch blockierte Windows/OneDrive das Umbenennen des generierten `release/win-unpacked.tmp`-Ordners mit `EPERM`. Der Release-Ordner wurde bereinigt und der Packaging-Lauf danach erneut ausgeführt.
+- Das `EPERM` trat auch ausserhalb von OneDrive auf, solange electron-builder die Electron-Laufzeit selbst entpacken wollte. Die Loesung ist `electronDist: node_modules/electron/dist`, wodurch die bereits lokal installierte Electron-Runtime kopiert wird.
+- Fuer den NSIS-Installer trat das gleiche Rename-Problem im lokalen electron-builder-Cache auf. Nach manuellem Umbenennen der vollstaendig entpackten Cache-Ordner `nsis-3.0.4.1-...tmp` und `nsis-resources-3.4.1-...tmp` lief `npm run electron:dist` erfolgreich durch.
 
 ## Entscheidungen
 

@@ -22,6 +22,7 @@ import {
   PanelRightClose,
   PanelRightOpen,
   RotateCcw,
+  Save,
   Sun,
   Table2,
   Underline,
@@ -76,8 +77,12 @@ function App() {
   const [theme, setTheme] = React.useState<'light' | 'dark'>(() => {
     return (localStorage.getItem(themeKey) as 'light' | 'dark' | null) ?? 'light';
   });
+  const [currentFilePath, setCurrentFilePath] = React.useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = React.useState('Nicht gespeichert');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const electronApi = window.mdeApi;
+  const isElectron = Boolean(electronApi?.isElectron);
 
   React.useEffect(() => {
     localStorage.setItem(storageKey, markdown);
@@ -103,7 +108,27 @@ function App() {
     return { words, chars, lines };
   }, [markdown]);
 
-  const openFileDialog = () => fileInputRef.current?.click();
+  const openFileDialog = async () => {
+    if (electronApi) {
+      const result = await electronApi.openFile();
+      if (!result) {
+        return;
+      }
+
+      setMarkdown(result.content ?? '');
+      setFileName(normalizeMarkdownFileName(result.fileName));
+      setCurrentFilePath(result.filePath);
+      setSaveStatus('Gespeichert');
+      return;
+    }
+
+    fileInputRef.current?.click();
+  };
+
+  const updateMarkdown = (nextMarkdown: string) => {
+    setMarkdown(nextMarkdown);
+    setSaveStatus('Ungespeicherte Änderungen');
+  };
 
   const getSelectionRange = (): SelectionRange => {
     const textarea = textareaRef.current;
@@ -127,7 +152,7 @@ function App() {
     const nextStart = start + prefix.length;
     const nextEnd = nextStart + selectedText.length;
 
-    setMarkdown(nextMarkdown);
+    updateMarkdown(nextMarkdown);
     restoreSelection({ start: nextStart, end: nextEnd });
   };
 
@@ -139,7 +164,7 @@ function App() {
     const nextMarkdown = `${markdown.slice(0, start)}${insertion}${markdown.slice(end)}`;
     const insertedStart = start + (needsLeadingBreak ? 2 : 0);
 
-    setMarkdown(nextMarkdown);
+    updateMarkdown(nextMarkdown);
     restoreSelection({
       start: insertedStart + selectionOffset,
       end: insertedStart + selectionOffset + selectionLength,
@@ -157,7 +182,7 @@ function App() {
       .map((line, index) => formatter(line, index))
       .join('\n');
 
-    setMarkdown(`${markdown.slice(0, lineStart)}${formatted}${markdown.slice(lineEnd)}`);
+    updateMarkdown(`${markdown.slice(0, lineStart)}${formatted}${markdown.slice(lineEnd)}`);
     restoreSelection({ start: lineStart, end: lineStart + formatted.length });
   };
 
@@ -169,7 +194,7 @@ function App() {
     const urlStart = start + selectedText.length + 3;
     const urlEnd = urlStart + 'https://example.com'.length;
 
-    setMarkdown(nextMarkdown);
+    updateMarkdown(nextMarkdown);
     restoreSelection({ start: urlStart, end: urlEnd });
   };
 
@@ -194,12 +219,29 @@ function App() {
     }
 
     const text = await file.text();
-    setMarkdown(text);
+    updateMarkdown(text);
     setFileName(normalizeMarkdownFileName(file.name));
+    setCurrentFilePath(null);
     event.target.value = '';
   };
 
-  const downloadMarkdown = () => {
+  const saveMarkdown = async () => {
+    if (electronApi) {
+      const result = await electronApi.saveFile({
+        filePath: currentFilePath,
+        fileName,
+        content: markdown,
+      });
+
+      if (result) {
+        setCurrentFilePath(result.filePath);
+        setFileName(normalizeMarkdownFileName(result.fileName));
+        setSaveStatus('Gespeichert');
+      }
+
+      return;
+    }
+
     const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
@@ -209,15 +251,56 @@ function App() {
     anchor.click();
     anchor.remove();
     URL.revokeObjectURL(url);
+    setSaveStatus('Heruntergeladen');
+  };
+
+  const saveMarkdownAs = async () => {
+    if (!electronApi) {
+      await saveMarkdown();
+      return;
+    }
+
+    const result = await electronApi.saveFileAs({
+      filePath: currentFilePath,
+      fileName,
+      content: markdown,
+    });
+
+    if (result) {
+      setCurrentFilePath(result.filePath);
+      setFileName(normalizeMarkdownFileName(result.fileName));
+      setSaveStatus('Gespeichert');
+    }
   };
 
   const resetDocument = () => {
     const confirmed = window.confirm('Aktuellen Inhalt durch die Beispielnotiz ersetzen?');
     if (confirmed) {
-      setMarkdown(starterMarkdown);
+      updateMarkdown(starterMarkdown);
       setFileName('notizen.md');
+      setCurrentFilePath(null);
     }
   };
+
+  React.useEffect(() => {
+    if (!electronApi) {
+      return undefined;
+    }
+
+    return electronApi.onMenuCommand((command) => {
+      if (command === 'open') {
+        void openFileDialog();
+      }
+
+      if (command === 'save') {
+        void saveMarkdown();
+      }
+
+      if (command === 'saveAs') {
+        void saveMarkdownAs();
+      }
+    });
+  }, [electronApi, fileName, markdown, currentFilePath]);
 
   return (
     <main className="app-shell">
@@ -242,14 +325,20 @@ function App() {
               aria-label="Dateiname"
             />
           </label>
-          <button type="button" className="icon-button" onClick={openFileDialog} title="Markdown-Datei hochladen">
+          <button type="button" className="icon-button" onClick={openFileDialog} title={isElectron ? 'Markdown-Datei öffnen' : 'Markdown-Datei hochladen'}>
             <FolderOpen aria-hidden="true" size={20} />
-            <span>Hochladen</span>
+            <span>{isElectron ? 'Öffnen' : 'Hochladen'}</span>
           </button>
-          <button type="button" className="icon-button" onClick={downloadMarkdown} title="Markdown-Datei herunterladen">
-            <Download aria-hidden="true" size={20} />
-            <span>Herunterladen</span>
+          <button type="button" className="icon-button" onClick={saveMarkdown} title={isElectron ? 'Markdown-Datei speichern' : 'Markdown-Datei herunterladen'}>
+            {isElectron ? <Save aria-hidden="true" size={20} /> : <Download aria-hidden="true" size={20} />}
+            <span>{isElectron ? 'Speichern' : 'Herunterladen'}</span>
           </button>
+          {isElectron ? (
+            <button type="button" className="icon-button" onClick={saveMarkdownAs} title="Markdown-Datei unter neuem Namen speichern">
+              <Download aria-hidden="true" size={20} />
+              <span>Speichern unter</span>
+            </button>
+          ) : null}
           <button type="button" className="icon-only" onClick={resetDocument} title="Beispiel wiederherstellen">
             <RotateCcw aria-hidden="true" size={20} />
           </button>
@@ -269,6 +358,7 @@ function App() {
           <span>{stats.words} Wörter</span>
           <span>{stats.chars} Zeichen</span>
           <span>{stats.lines} Zeilen</span>
+          <span>{saveStatus}</span>
         </div>
         <button
           type="button"
@@ -333,7 +423,7 @@ function App() {
           <textarea
             ref={textareaRef}
             value={markdown}
-            onChange={(event) => setMarkdown(event.target.value)}
+            onChange={(event) => updateMarkdown(event.target.value)}
             spellCheck="false"
             aria-label="Markdown Editor"
           />
