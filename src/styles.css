@@ -231,6 +231,10 @@ h1 {
   border-radius: 8px;
 }
 
+.editor-pane {
+  grid-template-rows: 46px auto 1fr;
+}
+
 .pane-title {
   display: flex;
   align-items: center;
@@ -241,6 +245,44 @@ h1 {
   color: var(--muted);
   background: var(--surface-strong);
   font-weight: 700;
+}
+
+.format-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 48px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.format-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--muted);
+  background: transparent;
+}
+
+.format-button:hover,
+.format-button:focus-visible {
+  color: var(--accent-strong);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  outline: 0;
+}
+
+.format-divider {
+  width: 1px;
+  height: 26px;
+  margin: 0 2px;
+  background: var(--border);
 }
 
 textarea {
@@ -399,5 +441,15 @@ textarea {
   .preview,
   textarea {
     padding: 16px;
+  }
+
+  .format-toolbar {
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .format-button {
+    width: 32px;
+    height: 32px;
   }
 }

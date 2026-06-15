@@ -6,11 +6,16 @@ mdE ist ein deutschsprachiger, rein clientseitiger Markdown Editor als Web Appli
 
 - Live-Vorschau für GitHub-Flavored Markdown
 - Vorschau kann ein- und ausgeblendet werden
+- Symbolleiste für schnelle Markdown-Formatierungen
 - Upload von `.md` und `.markdown` Dateien
 - Download des aktuellen Inhalts als Markdown-Datei
 - Dateiname direkt in der Kopfzeile editierbar
 - Helles und dunkles Design
 - Automatische lokale Zwischenspeicherung im Browser
+
+## Symbolleiste
+
+Die Editor-Symbolleiste fügt Standardformatierungen direkt an der Cursorposition ein oder wendet sie auf markierten Text an. Unterstützt werden Fett, Kursiv, Unterstrichen, Link, Überschriften, Aufzählungen, nummerierte Listen, Zitate, Inline-Code, Codeblöcke, Tabellen und Trennlinien.
 
 ## Entwicklung
 

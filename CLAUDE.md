@@ -19,6 +19,7 @@ Die App übernimmt das fokussierte Editor-Prinzip von Polypost: eine klare Kopfz
 - Markdown-Editor mit grosser Schreibflaeche
 - Live-Vorschau mit GitHub-Flavored Markdown
 - Ausblendbare Vorschau für konzentriertes Schreiben
+- Symbolleiste für schnelle Standardformatierungen
 - Upload vorhandener Markdown-Dateien
 - Download des aktuellen Dokuments
 - Editierbarer Dateiname
@@ -40,7 +41,7 @@ Die App verarbeitet Dateien ausschließlich im Browser. Upload bedeutet in diese
 
 ## Design
 
-Die Oberfläche ist arbeitsorientiert, dicht und ruhig. Die wichtigsten Aktionen liegen in der Kopfzeile: Datei hochladen, herunterladen, Beispiel zurücksetzen, Theme wechseln. Der Editor und die Vorschau sind als gleichwertige Arbeitsbereiche ausgelegt. Auf kleinen Bildschirmen stapeln sich die Bereiche.
+Die Oberfläche ist arbeitsorientiert, dicht und ruhig. Die wichtigsten Aktionen liegen in der Kopfzeile: Datei hochladen, herunterladen, Beispiel zurücksetzen, Theme wechseln. Direkt über der Schreibfläche liegt eine Symbolleiste für häufige Markdown-Formatierungen. Der Editor und die Vorschau sind als gleichwertige Arbeitsbereiche ausgelegt. Auf kleinen Bildschirmen stapeln sich die Bereiche.
 
 ## Erweiterungsideen
 

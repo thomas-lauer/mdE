@@ -3,6 +3,16 @@ import ReactDOM from 'react-dom/client';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import {
+  Bold,
+  Code,
+  Heading1,
+  Heading2,
+  Italic,
+  Link,
+  List,
+  ListOrdered,
+  Minus,
+  Quote,
   Download,
   Eye,
   EyeOff,
@@ -13,6 +23,8 @@ import {
   PanelRightOpen,
   RotateCcw,
   Sun,
+  Table2,
+  Underline,
 } from 'lucide-react';
 import './styles.css';
 
@@ -43,6 +55,11 @@ const storageKey = 'mde-editor-content';
 const filenameKey = 'mde-filename';
 const themeKey = 'mde-theme';
 
+type SelectionRange = {
+  start: number;
+  end: number;
+};
+
 marked.use({
   gfm: true,
   breaks: false,
@@ -60,6 +77,7 @@ function App() {
     return (localStorage.getItem(themeKey) as 'light' | 'dark' | null) ?? 'light';
   });
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   React.useEffect(() => {
     localStorage.setItem(storageKey, markdown);
@@ -86,6 +104,80 @@ function App() {
   }, [markdown]);
 
   const openFileDialog = () => fileInputRef.current?.click();
+
+  const getSelectionRange = (): SelectionRange => {
+    const textarea = textareaRef.current;
+    return {
+      start: textarea?.selectionStart ?? markdown.length,
+      end: textarea?.selectionEnd ?? markdown.length,
+    };
+  };
+
+  const restoreSelection = (range: SelectionRange) => {
+    window.requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+      textareaRef.current?.setSelectionRange(range.start, range.end);
+    });
+  };
+
+  const insertInline = (prefix: string, suffix: string, placeholder: string) => {
+    const { start, end } = getSelectionRange();
+    const selectedText = markdown.slice(start, end) || placeholder;
+    const nextMarkdown = `${markdown.slice(0, start)}${prefix}${selectedText}${suffix}${markdown.slice(end)}`;
+    const nextStart = start + prefix.length;
+    const nextEnd = nextStart + selectedText.length;
+
+    setMarkdown(nextMarkdown);
+    restoreSelection({ start: nextStart, end: nextEnd });
+  };
+
+  const insertBlock = (block: string, selectionOffset = 0, selectionLength = 0) => {
+    const { start, end } = getSelectionRange();
+    const needsLeadingBreak = start > 0 && markdown[start - 1] !== '\n';
+    const needsTrailingBreak = end < markdown.length && markdown[end] !== '\n';
+    const insertion = `${needsLeadingBreak ? '\n\n' : ''}${block}${needsTrailingBreak ? '\n\n' : ''}`;
+    const nextMarkdown = `${markdown.slice(0, start)}${insertion}${markdown.slice(end)}`;
+    const insertedStart = start + (needsLeadingBreak ? 2 : 0);
+
+    setMarkdown(nextMarkdown);
+    restoreSelection({
+      start: insertedStart + selectionOffset,
+      end: insertedStart + selectionOffset + selectionLength,
+    });
+  };
+
+  const transformSelectedLines = (formatter: (line: string, index: number) => string) => {
+    const { start, end } = getSelectionRange();
+    const lineStart = markdown.lastIndexOf('\n', Math.max(0, start - 1)) + 1;
+    const nextBreak = markdown.indexOf('\n', end);
+    const lineEnd = nextBreak === -1 ? markdown.length : nextBreak;
+    const selectedLines = markdown.slice(lineStart, lineEnd);
+    const formatted = selectedLines
+      .split('\n')
+      .map((line, index) => formatter(line, index))
+      .join('\n');
+
+    setMarkdown(`${markdown.slice(0, lineStart)}${formatted}${markdown.slice(lineEnd)}`);
+    restoreSelection({ start: lineStart, end: lineStart + formatted.length });
+  };
+
+  const insertLink = () => {
+    const { start, end } = getSelectionRange();
+    const selectedText = markdown.slice(start, end) || 'Linktext';
+    const linkText = `[${selectedText}](https://example.com)`;
+    const nextMarkdown = `${markdown.slice(0, start)}${linkText}${markdown.slice(end)}`;
+    const urlStart = start + selectedText.length + 3;
+    const urlEnd = urlStart + 'https://example.com'.length;
+
+    setMarkdown(nextMarkdown);
+    restoreSelection({ start: urlStart, end: urlEnd });
+  };
+
+  const insertCodeBlock = () => {
+    const { start, end } = getSelectionRange();
+    const selectedText = markdown.slice(start, end) || 'const beispiel = true;';
+    insertBlock(`\`\`\`ts\n${selectedText}\n\`\`\``, 6, selectedText.length);
+  };
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -195,7 +287,51 @@ function App() {
             <span>Editor</span>
             <EyeOff aria-hidden="true" size={16} />
           </div>
+          <div className="format-toolbar" aria-label="Formatierung">
+            <button type="button" className="format-button" onClick={() => insertInline('**', '**', 'fetter Text')} title="Fett">
+              <Bold aria-hidden="true" size={18} />
+            </button>
+            <button type="button" className="format-button" onClick={() => insertInline('*', '*', 'kursiver Text')} title="Kursiv">
+              <Italic aria-hidden="true" size={18} />
+            </button>
+            <button type="button" className="format-button" onClick={() => insertInline('<u>', '</u>', 'unterstrichener Text')} title="Unterstrichen">
+              <Underline aria-hidden="true" size={18} />
+            </button>
+            <button type="button" className="format-button" onClick={insertLink} title="Link">
+              <Link aria-hidden="true" size={18} />
+            </button>
+            <span className="format-divider" aria-hidden="true" />
+            <button type="button" className="format-button" onClick={() => transformSelectedLines((line) => `# ${line.replace(/^#{1,6}\s*/, '') || 'Überschrift'}`)} title="Überschrift 1">
+              <Heading1 aria-hidden="true" size={18} />
+            </button>
+            <button type="button" className="format-button" onClick={() => transformSelectedLines((line) => `## ${line.replace(/^#{1,6}\s*/, '') || 'Überschrift'}`)} title="Überschrift 2">
+              <Heading2 aria-hidden="true" size={18} />
+            </button>
+            <button type="button" className="format-button" onClick={() => transformSelectedLines((line) => `- ${line.replace(/^[-*]\s*/, '') || 'Listenpunkt'}`)} title="Aufzählung">
+              <List aria-hidden="true" size={18} />
+            </button>
+            <button type="button" className="format-button" onClick={() => transformSelectedLines((line, index) => `${index + 1}. ${line.replace(/^\d+\.\s*/, '') || 'Listenpunkt'}`)} title="Nummerierte Liste">
+              <ListOrdered aria-hidden="true" size={18} />
+            </button>
+            <button type="button" className="format-button" onClick={() => transformSelectedLines((line) => `> ${line.replace(/^>\s*/, '') || 'Zitat'}`)} title="Zitat">
+              <Quote aria-hidden="true" size={18} />
+            </button>
+            <span className="format-divider" aria-hidden="true" />
+            <button type="button" className="format-button" onClick={() => insertInline('`', '`', 'code')} title="Inline-Code">
+              <Code aria-hidden="true" size={18} />
+            </button>
+            <button type="button" className="format-button" onClick={insertCodeBlock} title="Codeblock">
+              <Code aria-hidden="true" size={18} />
+            </button>
+            <button type="button" className="format-button" onClick={() => insertBlock('| Spalte 1 | Spalte 2 |\n| --- | --- |\n| Inhalt | Inhalt |')} title="Tabelle">
+              <Table2 aria-hidden="true" size={18} />
+            </button>
+            <button type="button" className="format-button" onClick={() => insertBlock('---')} title="Trennlinie">
+              <Minus aria-hidden="true" size={18} />
+            </button>
+          </div>
           <textarea
+            ref={textareaRef}
             value={markdown}
             onChange={(event) => setMarkdown(event.target.value)}
             spellCheck="false"

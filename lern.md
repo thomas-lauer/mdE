@@ -11,6 +11,7 @@
 - `npm audit` meldete für die initiale Vite-Version einen High-Severity-Hinweis über `esbuild`. Vite wurde auf die aktuelle Version 8.0.16 aktualisiert.
 - Eine separate TypeScript-Projekt-Referenz für `vite.config.ts` erzeugte Build-Zwischenartefakte und war für diese kleine App unnötig. Der Build nutzt nun `tsc --noEmit` plus `vite build`.
 - Der erste GitHub-Pages-Lauf war erfolgreich, meldete aber eine Warnung zur bevorstehenden Node-20-Actions-Abkündigung. Der Workflow setzt `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` und nutzt die aktuellen Major-Versionen der GitHub-Actions.
+- Markdown kennt keine native Unterstreichung. Die Toolbar nutzt dafür bewusst `<u>...</u>`, das in der bereinigten Vorschau gerendert wird.
 
 ## Entscheidungen
 
