@@ -13,6 +13,7 @@ mdE ist ein deutschsprachiger, rein clientseitiger Markdown Editor als Web Appli
 - Dateiname direkt in der Kopfzeile editierbar
 - Helles und dunkles Design
 - Automatische lokale Zwischenspeicherung im Browser
+- GitHub-Link direkt in der Kopfzeile
 
 ## Symbolleiste
 

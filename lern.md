@@ -15,6 +15,7 @@
 - Beim ersten Electron-Packaging-Versuch blockierte Windows/OneDrive das Umbenennen des generierten `release/win-unpacked.tmp`-Ordners mit `EPERM`. Der Release-Ordner wurde bereinigt und der Packaging-Lauf danach erneut ausgeführt.
 - Das `EPERM` trat auch ausserhalb von OneDrive auf, solange electron-builder die Electron-Laufzeit selbst entpacken wollte. Die Loesung ist `electronDist: node_modules/electron/dist`, wodurch die bereits lokal installierte Electron-Runtime kopiert wird.
 - Fuer den NSIS-Installer trat das gleiche Rename-Problem im lokalen electron-builder-Cache auf. Nach manuellem Umbenennen der vollstaendig entpackten Cache-Ordner `nsis-3.0.4.1-...tmp` und `nsis-resources-3.4.1-...tmp` lief `npm run electron:dist` erfolgreich durch.
+- Externe Links in der Electron-App duerfen nicht die lokale Editor-Ansicht ersetzen. Der GitHub-Link wird deshalb ueber `setWindowOpenHandler` abgefangen und mit `shell.openExternal` im Standardbrowser geoeffnet.
 
 ## Entscheidungen
 

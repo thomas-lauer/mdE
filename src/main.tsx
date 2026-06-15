@@ -18,6 +18,7 @@ import {
   EyeOff,
   FileText,
   FolderOpen,
+  Github,
   Moon,
   PanelRightClose,
   PanelRightOpen,
@@ -350,6 +351,16 @@ function App() {
           >
             {theme === 'light' ? <Moon aria-hidden="true" size={20} /> : <Sun aria-hidden="true" size={20} />}
           </button>
+          <a
+            className="icon-only"
+            href="https://github.com/thomas-lauer/mdE"
+            target="_blank"
+            rel="noreferrer"
+            title="GitHub Projekt öffnen"
+            aria-label="GitHub Projekt öffnen"
+          >
+            <Github aria-hidden="true" size={20} />
+          </a>
         </div>
       </header>
 

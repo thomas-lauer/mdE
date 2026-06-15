@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, Menu, shell } = require('electron');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
@@ -31,6 +31,14 @@ function createWindow() {
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
   }
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https://github.com/thomas-lauer/mdE')) {
+      shell.openExternal(url);
+    }
+
+    return { action: 'deny' };
+  });
 }
 
 function sendMenuCommand(command) {

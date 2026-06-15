@@ -165,6 +165,10 @@ h1 {
   border: 1px solid var(--border);
 }
 
+a.icon-only {
+  text-decoration: none;
+}
+
 .icon-button,
 .toggle-preview {
   padding: 0 12px;
