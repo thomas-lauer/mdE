@@ -46,10 +46,6 @@ Beim Start kann der EXE eine `.md`- oder `.markdown`-Datei als Argument uebergeb
 
 Die App-Version wird als numerische Hauptversion gefuehrt. Version 2 ist der Startpunkt fuer diese Versionierung. Bei normalen Pushes auf `main` erhoeht `.github/workflows/version.yml` die Hauptversion automatisch um `+1`; Commits mit `[skip version]` sind ausgenommen.
 
-## Go-Variante
-
-Die zusaetzliche Go-Variante liegt unter `cmd/mde-go`. Sie ist eine eigenstaendige Windows-App mit direkten Win32-Aufrufen aus Go, direktem Dateizugriff und Go-basierter Markdown-Textvorschau. Sie verwendet keine Electron-, Node-, React- oder Go-GUI-Wrapper-Laufzeit.
-
 ## Design
 
 Die Oberfläche ist arbeitsorientiert, dicht und ruhig. Die wichtigsten Aktionen liegen in der Kopfzeile: Datei hochladen, herunterladen, Beispiel zurücksetzen, Theme wechseln. Direkt über der Schreibfläche liegt eine Symbolleiste für häufige Markdown-Formatierungen. Der Editor und die Vorschau sind als gleichwertige Arbeitsbereiche ausgelegt. Auf kleinen Bildschirmen stapeln sich die Bereiche.
