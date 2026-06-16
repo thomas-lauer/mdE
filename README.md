@@ -9,6 +9,7 @@ mdE ist ein deutschsprachiger, rein clientseitiger Markdown Editor als Web Appli
 - Symbolleiste für schnelle Markdown-Formatierungen
 - Upload von `.md` und `.markdown` Dateien
 - Download des aktuellen Inhalts als Markdown-Datei
+- Export als HTML, PDF und DOCX
 - Electron-Variante für Windows mit direktem Datei-Öffnen und Speichern
 - Dateiname direkt in der Kopfzeile editierbar
 - Helles und dunkles Design
@@ -18,6 +19,16 @@ mdE ist ein deutschsprachiger, rein clientseitiger Markdown Editor als Web Appli
 ## Symbolleiste
 
 Die Editor-Symbolleiste fügt Standardformatierungen direkt an der Cursorposition ein oder wendet sie auf markierten Text an. Unterstützt werden Fett, Kursiv, Unterstrichen, Link, Überschriften, Aufzählungen, nummerierte Listen, Zitate, Inline-Code, Codeblöcke, Tabellen und Trennlinien.
+
+## Export
+
+mdE kann die aktuelle Vorschau in drei Formate exportieren:
+
+- `HTML`: vollständige Standalone-Datei mit eingebettetem Layout
+- `PDF`: A4-PDF aus der gerenderten Dokumentstruktur
+- `DOCX`: Word-Datei mit Überschriften, Absätzen, Listen, Zitaten, Code und einfachen Tabellen
+
+Die Exportfunktionen laufen clientseitig im Browser. In der Electron-Variante sind sie zusätzlich über `Datei > Exportieren` erreichbar.
 
 ## Entwicklung
 

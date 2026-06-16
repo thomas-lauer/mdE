@@ -103,6 +103,15 @@ function createMenu() {
         { label: 'Speichern', accelerator: 'CmdOrCtrl+S', click: () => sendMenuCommand('save') },
         { label: 'Speichern unter...', accelerator: 'CmdOrCtrl+Shift+S', click: () => sendMenuCommand('saveAs') },
         { type: 'separator' },
+        {
+          label: 'Exportieren',
+          submenu: [
+            { label: 'HTML...', click: () => sendMenuCommand('exportHtml') },
+            { label: 'PDF...', click: () => sendMenuCommand('exportPdf') },
+            { label: 'DOCX...', click: () => sendMenuCommand('exportDocx') },
+          ],
+        },
+        { type: 'separator' },
         { role: 'quit', label: 'Beenden' },
       ],
     },

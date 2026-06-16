@@ -22,6 +22,7 @@ Die App übernimmt das fokussierte Editor-Prinzip von Polypost: eine klare Kopfz
 - Symbolleiste für schnelle Standardformatierungen
 - Upload vorhandener Markdown-Dateien
 - Download des aktuellen Dokuments
+- Export der gerenderten Vorschau als HTML, PDF und DOCX
 - Editierbarer Dateiname
 - Helles und dunkles Design
 - Lokale Zwischenspeicherung im Browser
@@ -31,6 +32,7 @@ Die App übernimmt das fokussierte Editor-Prinzip von Polypost: eine klare Kopfz
 - Framework: Vite mit React und TypeScript
 - Markdown: `marked` mit GFM-Unterstuetzung
 - Sicherheit: HTML-Sanitizing durch `dompurify`
+- Export: HTML als Standalone-Datei, PDF mit `jspdf`, DOCX mit `docx`
 - Icons: `lucide-react`
 - Desktop: Electron mit isoliertem Preload-Skript und IPC fuer Dateioperationen
 - Deployment: GitHub Actions mit `actions/deploy-pages`
@@ -38,9 +40,9 @@ Die App übernimmt das fokussierte Editor-Prinzip von Polypost: eine klare Kopfz
 
 ## Datenschutz
 
-Die App verarbeitet Dateien ausschließlich im Browser. Upload bedeutet in diesem Kontext nur das lokale Einlesen einer Datei in die Web-App. Es werden keine Inhalte an einen Server gesendet.
+Die App verarbeitet Dateien ausschließlich im Browser. Upload bedeutet in diesem Kontext nur das lokale Einlesen einer Datei in die Web-App. Export bedeutet das lokale Erzeugen einer Datei aus der gerenderten, bereinigten Vorschau. Es werden keine Inhalte an einen Server gesendet.
 
-In der Electron-Variante laufen Dateioperationen ueber den Main-Prozess. Der Renderer erhaelt nur die eng begrenzte Preload-API `mdeApi` fuer `openFile`, `saveFile`, `saveFileAs`, Startdateien und Menue-Kommandos. `nodeIntegration` bleibt deaktiviert und `contextIsolation` bleibt aktiviert.
+In der Electron-Variante laufen Dateioperationen ueber den Main-Prozess. Der Renderer erhaelt nur die eng begrenzte Preload-API `mdeApi` fuer `openFile`, `saveFile`, `saveFileAs`, Startdateien und Menue-Kommandos. Die Exportfunktionen bleiben Renderer-seitig und werden nur per Menue-Kommandos ausgeloest. `nodeIntegration` bleibt deaktiviert und `contextIsolation` bleibt aktiviert.
 
 Beim Start kann der EXE eine `.md`- oder `.markdown`-Datei als Argument uebergeben werden. Der Main-Prozess liest diese Datei ein, uebergibt Inhalt und Pfad an den Renderer und nutzt denselben Pfad spaeter fuer `Speichern`.
 
@@ -48,12 +50,10 @@ Die App-Version wird als numerische Hauptversion gefuehrt. Version 2 ist der Sta
 
 ## Design
 
-Die Oberfläche ist arbeitsorientiert, dicht und ruhig. Die wichtigsten Aktionen liegen in der Kopfzeile: Datei hochladen, herunterladen, Beispiel zurücksetzen, Theme wechseln. Direkt über der Schreibfläche liegt eine Symbolleiste für häufige Markdown-Formatierungen. Der Editor und die Vorschau sind als gleichwertige Arbeitsbereiche ausgelegt. Auf kleinen Bildschirmen stapeln sich die Bereiche.
+Die Oberfläche ist arbeitsorientiert, dicht und ruhig. Die wichtigsten Aktionen liegen in der Kopfzeile: Datei hochladen, speichern oder herunterladen, Export, Beispiel zurücksetzen, Theme wechseln und GitHub öffnen. Direkt über der Schreibfläche liegt eine Symbolleiste für häufige Markdown-Formatierungen. Der Editor und die Vorschau sind als gleichwertige Arbeitsbereiche ausgelegt. Auf kleinen Bildschirmen stapeln sich die Bereiche.
 
 ## Erweiterungsideen
 
-- Markdown-Toolbar fuer haeufige Formatierungen
-- Export als HTML oder PDF
 - Drag-and-drop Upload
 - Such- und Ersetzen-Funktion
 - Synchronisierte Scrollposition zwischen Editor und Vorschau

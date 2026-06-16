@@ -16,7 +16,10 @@ import {
   Download,
   Eye,
   EyeOff,
+  FileCode,
+  FileDown,
   FileText,
+  FileType,
   FolderOpen,
   Github,
   Moon,
@@ -278,6 +281,41 @@ function App() {
     }
   };
 
+  const exportHtml = () => {
+    const exportName = `${getExportBaseName(fileName)}.html`;
+    const htmlDocument = buildStandaloneHtml(fileName, renderedHtml);
+
+    downloadBlob(new Blob([htmlDocument], { type: 'text/html;charset=utf-8' }), exportName);
+    setSaveStatus('HTML exportiert');
+  };
+
+  const exportPdf = async () => {
+    const exportName = `${getExportBaseName(fileName)}.pdf`;
+    const pdfModule = await import('jspdf');
+
+    buildPdfFromHtml(pdfModule, renderedHtml, fileName).save(exportName);
+    setSaveStatus('PDF exportiert');
+  };
+
+  const exportDocx = async () => {
+    const exportName = `${getExportBaseName(fileName)}.docx`;
+    const docx = await import('docx');
+    const doc = new docx.Document({
+      title: fileName,
+      creator: 'mdE',
+      sections: [
+        {
+          properties: {},
+          children: buildDocxChildren(docx, renderedHtml),
+        },
+      ],
+    });
+    const blob = await docx.Packer.toBlob(doc);
+
+    downloadBlob(blob, exportName);
+    setSaveStatus('DOCX exportiert');
+  };
+
   const resetDocument = () => {
     const confirmed = window.confirm('Aktuellen Inhalt durch die Beispielnotiz ersetzen?');
     if (confirmed) {
@@ -304,8 +342,20 @@ function App() {
       if (command === 'saveAs') {
         void saveMarkdownAs();
       }
+
+      if (command === 'exportHtml') {
+        exportHtml();
+      }
+
+      if (command === 'exportPdf') {
+        void exportPdf();
+      }
+
+      if (command === 'exportDocx') {
+        void exportDocx();
+      }
     });
-  }, [electronApi, fileName, markdown, currentFilePath]);
+  }, [electronApi, fileName, markdown, currentFilePath, renderedHtml]);
 
   React.useEffect(() => {
     if (!electronApi) {
@@ -367,6 +417,20 @@ function App() {
               <span>Speichern unter</span>
             </button>
           ) : null}
+          <div className="export-group" aria-label="Export">
+            <button type="button" className="icon-button export-button" onClick={exportHtml} title="Als HTML-Datei exportieren">
+              <FileCode aria-hidden="true" size={20} />
+              <span>HTML</span>
+            </button>
+            <button type="button" className="icon-button export-button" onClick={() => void exportPdf()} title="Als PDF-Datei exportieren">
+              <FileDown aria-hidden="true" size={20} />
+              <span>PDF</span>
+            </button>
+            <button type="button" className="icon-button export-button" onClick={() => void exportDocx()} title="Als DOCX-Datei exportieren">
+              <FileType aria-hidden="true" size={20} />
+              <span>DOCX</span>
+            </button>
+          </div>
           <button type="button" className="icon-only" onClick={resetDocument} title="Beispiel wiederherstellen">
             <RotateCcw aria-hidden="true" size={20} />
           </button>
@@ -494,6 +558,391 @@ function App() {
 function normalizeMarkdownFileName(value: string) {
   const trimmed = value.trim() || 'notizen.md';
   return /\.(md|markdown)$/i.test(trimmed) ? trimmed : `${trimmed}.md`;
+}
+
+function getExportBaseName(fileName: string) {
+  return fileName
+    .replace(/\.(md|markdown)$/i, '')
+    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+    .trim() || 'notizen';
+}
+
+function downloadBlob(blob: Blob, fileName: string) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = fileName;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildStandaloneHtml(title: string, content: string) {
+  return `<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${escapeHtml(title)}</title>
+  <style>
+    :root {
+      color: #17212f;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f8fa;
+    }
+    body {
+      margin: 0;
+      padding: 48px 24px;
+      background: #f7f8fa;
+    }
+    main {
+      width: min(860px, 100%);
+      margin: 0 auto;
+      padding: 44px;
+      background: #ffffff;
+      border: 1px solid #d9dee6;
+      border-radius: 8px;
+    }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { padding-bottom: 12px; border-bottom: 1px solid #d9dee6; }
+    p, li { line-height: 1.68; }
+    a { color: #115e59; }
+    blockquote {
+      margin-left: 0;
+      padding: 12px 16px;
+      border-left: 4px solid #0f766e;
+      background: #f7f8fa;
+      color: #687386;
+    }
+    code {
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: #eef1f4;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.9em;
+    }
+    pre {
+      overflow: auto;
+      padding: 16px;
+      border-radius: 8px;
+      background: #101827;
+      color: #e8edf5;
+    }
+    pre code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+    }
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid #d9dee6;
+      text-align: left;
+    }
+    th { background: #f7f8fa; }
+    img { max-width: 100%; }
+  </style>
+</head>
+<body>
+  <main>
+${content}
+  </main>
+</body>
+</html>`;
+}
+
+type PdfModule = typeof import('jspdf');
+type DocxModule = typeof import('docx');
+type DocxParagraph = InstanceType<DocxModule['Paragraph']>;
+type DocxTable = InstanceType<DocxModule['Table']>;
+type DocxTextRun = InstanceType<DocxModule['TextRun']>;
+
+function buildPdfFromHtml(pdfModule: PdfModule, html: string, title: string) {
+  const pdf = new pdfModule.jsPDF({ unit: 'pt', format: 'a4' });
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 48;
+  const maxWidth = pageWidth - margin * 2;
+  let cursorY = margin;
+
+  const ensureSpace = (height: number) => {
+    if (cursorY + height > pageHeight - margin) {
+      pdf.addPage();
+      cursorY = margin;
+    }
+  };
+
+  const addText = (text: string, size = 11, style: 'normal' | 'bold' | 'italic' = 'normal', font = 'helvetica') => {
+    const normalized = normalizeInlineText(text);
+    if (!normalized) {
+      return;
+    }
+
+    pdf.setFont(font, style);
+    pdf.setFontSize(size);
+    const lineHeight = size * 1.45;
+    const lines = pdf.splitTextToSize(normalized, maxWidth) as string[];
+    ensureSpace(lines.length * lineHeight + 8);
+    pdf.text(lines, margin, cursorY);
+    cursorY += lines.length * lineHeight + 8;
+  };
+
+  const parsed = parseHtmlFragment(html);
+  addText(title.replace(/\.(md|markdown)$/i, ''), 20, 'bold');
+
+  Array.from(parsed.children).forEach((element) => {
+    addElementToPdf(element, addText);
+  });
+
+  return pdf;
+}
+
+function addElementToPdf(
+  element: Element,
+  addText: (text: string, size?: number, style?: 'normal' | 'bold' | 'italic', font?: string) => void,
+) {
+  const tagName = element.tagName.toLowerCase();
+
+  if (tagName === 'h1') {
+    addText(element.textContent ?? '', 18, 'bold');
+    return;
+  }
+
+  if (tagName === 'h2') {
+    addText(element.textContent ?? '', 15, 'bold');
+    return;
+  }
+
+  if (tagName === 'h3') {
+    addText(element.textContent ?? '', 13, 'bold');
+    return;
+  }
+
+  if (tagName === 'p') {
+    addText(element.textContent ?? '');
+    return;
+  }
+
+  if (tagName === 'blockquote') {
+    addText(element.textContent ?? '', 11, 'italic');
+    return;
+  }
+
+  if (tagName === 'pre') {
+    addText(element.textContent ?? '', 9, 'normal', 'courier');
+    return;
+  }
+
+  if (tagName === 'ul' || tagName === 'ol') {
+    Array.from(element.children).forEach((child, index) => {
+      const prefix = tagName === 'ol' ? `${index + 1}. ` : '- ';
+      addText(`${prefix}${child.textContent ?? ''}`);
+    });
+    return;
+  }
+
+  if (tagName === 'table') {
+    Array.from(element.querySelectorAll('tr')).forEach((row) => {
+      const cells = Array.from(row.children).map((cell) => normalizeInlineText(cell.textContent ?? ''));
+      addText(cells.join(' | '), 9, row.querySelector('th') ? 'bold' : 'normal', 'courier');
+    });
+    return;
+  }
+
+  if (tagName === 'hr') {
+    addText('________________________________________', 9);
+    return;
+  }
+
+  Array.from(element.children).forEach((child) => addElementToPdf(child, addText));
+}
+
+function buildDocxChildren(docx: DocxModule, html: string): Array<DocxParagraph | DocxTable> {
+  const parsed = parseHtmlFragment(html);
+  const children = Array.from(parsed.children).flatMap((element) => convertElementToDocx(docx, element));
+
+  return children.length > 0 ? children : [new docx.Paragraph('')];
+}
+
+function convertElementToDocx(docx: DocxModule, element: Element): Array<DocxParagraph | DocxTable> {
+  const tagName = element.tagName.toLowerCase();
+
+  if (tagName === 'h1' || tagName === 'h2' || tagName === 'h3') {
+    const heading =
+      tagName === 'h1' ? docx.HeadingLevel.HEADING_1 : tagName === 'h2' ? docx.HeadingLevel.HEADING_2 : docx.HeadingLevel.HEADING_3;
+
+    return [
+      new docx.Paragraph({
+        heading,
+        children: inlineRunsFromNode(docx, element),
+        spacing: { after: 180 },
+      }),
+    ];
+  }
+
+  if (tagName === 'p') {
+    return [paragraphFromElement(docx, element)];
+  }
+
+  if (tagName === 'blockquote') {
+    return [
+      new docx.Paragraph({
+        children: inlineRunsFromNode(docx, element, { italics: true, color: '687386' }),
+        indent: { left: 360 },
+        border: {
+          left: {
+            color: '0F766E',
+            space: 8,
+            style: 'single',
+            size: 12,
+          },
+        },
+        spacing: { after: 160 },
+      }),
+    ];
+  }
+
+  if (tagName === 'pre') {
+    return (element.textContent ?? '')
+      .split('\n')
+      .map((line) => new docx.Paragraph({ children: [new docx.TextRun({ text: line || ' ', font: 'Cascadia Code', size: 18 })] }));
+  }
+
+  if (tagName === 'ul') {
+    return Array.from(element.children).map(
+      (child) =>
+        new docx.Paragraph({
+          bullet: { level: 0 },
+          children: inlineRunsFromNode(docx, child),
+          spacing: { after: 80 },
+        }),
+    );
+  }
+
+  if (tagName === 'ol') {
+    return Array.from(element.children).map(
+      (child, index) =>
+        new docx.Paragraph({
+          children: [new docx.TextRun({ text: `${index + 1}. `, bold: true }), ...inlineRunsFromNode(docx, child)],
+          spacing: { after: 80 },
+        }),
+    );
+  }
+
+  if (tagName === 'table') {
+    const rows = Array.from(element.querySelectorAll('tr')).map(
+      (row) =>
+        new docx.TableRow({
+          children: Array.from(row.children).map(
+            (cell) =>
+              new docx.TableCell({
+                width: { size: 100 / Math.max(row.children.length, 1), type: docx.WidthType.PERCENTAGE },
+                children: [
+                  new docx.Paragraph({
+                    children: inlineRunsFromNode(docx, cell, cell.tagName.toLowerCase() === 'th' ? { bold: true } : {}),
+                  }),
+                ],
+              }),
+          ),
+        }),
+    );
+
+    return [
+      new docx.Table({
+        rows,
+        width: { size: 100, type: docx.WidthType.PERCENTAGE },
+      }),
+      new docx.Paragraph(''),
+    ];
+  }
+
+  if (tagName === 'hr') {
+    return [
+      new docx.Paragraph({
+        alignment: docx.AlignmentType.CENTER,
+        children: [new docx.TextRun('____________________________')],
+        spacing: { after: 160 },
+      }),
+    ];
+  }
+
+  return Array.from(element.children).flatMap((child) => convertElementToDocx(docx, child));
+}
+
+function paragraphFromElement(docx: DocxModule, element: Element): DocxParagraph {
+  return new docx.Paragraph({
+    children: inlineRunsFromNode(docx, element),
+    spacing: { after: 160 },
+  });
+}
+
+type InlineTextStyle = Record<string, any>;
+
+function inlineRunsFromNode(docx: DocxModule, node: Node, inheritedStyle: InlineTextStyle = {}): DocxTextRun[] {
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = normalizeInlineText(node.textContent ?? '');
+    return text ? [new docx.TextRun({ text, ...inheritedStyle })] : [];
+  }
+
+  if (node.nodeType !== Node.ELEMENT_NODE) {
+    return [];
+  }
+
+  const element = node as Element;
+  const tagName = element.tagName.toLowerCase();
+  const nextStyle: InlineTextStyle = { ...inheritedStyle };
+
+  if (tagName === 'strong' || tagName === 'b') {
+    nextStyle.bold = true;
+  }
+
+  if (tagName === 'em' || tagName === 'i') {
+    nextStyle.italics = true;
+  }
+
+  if (tagName === 'u') {
+    nextStyle.underline = { type: docx.UnderlineType.SINGLE };
+  }
+
+  if (tagName === 'code') {
+    nextStyle.font = 'Cascadia Code';
+    nextStyle.color = '17212F';
+  }
+
+  if (tagName === 'a') {
+    nextStyle.color = '115E59';
+    nextStyle.underline = { type: docx.UnderlineType.SINGLE };
+  }
+
+  if (tagName === 'br') {
+    return [new docx.TextRun({ break: 1 })];
+  }
+
+  const runs: DocxTextRun[] = Array.from(element.childNodes).flatMap((child) => inlineRunsFromNode(docx, child, nextStyle));
+  return runs.length > 0 ? runs : [new docx.TextRun({ text: normalizeInlineText(element.textContent ?? ''), ...nextStyle })];
+}
+
+function parseHtmlFragment(html: string) {
+  const documentFragment = new DOMParser().parseFromString(`<main>${html}</main>`, 'text/html');
+  return documentFragment.querySelector('main')!;
+}
+
+function normalizeInlineText(value: string) {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

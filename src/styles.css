@@ -178,6 +178,22 @@ a.icon-only {
   padding: 0 12px;
 }
 
+.export-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
+}
+
+.export-button {
+  min-height: 34px;
+  padding: 0 9px;
+  background: var(--surface);
+}
+
 .icon-only {
   width: 42px;
 }
@@ -447,12 +463,17 @@ textarea {
   }
 
   .file-name,
-  .icon-button {
+  .icon-button,
+  .export-group {
     width: 100%;
   }
 
   .file-name input {
     width: 100%;
+  }
+
+  .export-button {
+    flex: 1;
   }
 
   .icon-only {

@@ -20,9 +20,12 @@
 - Die neue Versionierung nutzt SemVer-kompatible Hauptversionen wie `2.0.0`, zeigt nach aussen aber Version `2`. Der GitHub-Workflow erhoeht bei normalen Pushes auf `main` automatisch die Hauptversion.
 - Das Scrollproblem in kleineren Fenstern lag an `min-height`-basierten Grid-Bereichen. Root, App-Shell, Workspace und Pane-Inhalte nutzen nun echte begrenzte Hoehen mit `minmax(0, 1fr)`, sodass Editor und Vorschau intern scrollen.
 - Die experimentelle Go-Variante wurde wieder entfernt. Der aktuelle Projektstand fokussiert sich wieder auf Web-App und Electron-Desktop-App.
+- PDF- und DOCX-Export benoetigen groessere Browser-Bibliotheken. Sie werden deshalb dynamisch geladen, damit der normale Editor-Start klein und schnell bleibt.
+- DOCX ist kein HTML-Container. Der Export bildet die wichtigsten Markdown-Strukturen gezielt auf Word-Elemente ab; komplexe HTML-Sonderfaelle koennen im DOCX vereinfacht dargestellt werden.
 
 ## Entscheidungen
 
 - Vite und React wurden gewählt, weil die UI-Zustände für Editor, Vorschau, Dateiaktionen und Theme damit gut wartbar bleiben.
 - Die App ist komplett clientseitig. Es gibt kein Backend und keine serverseitige Speicherung.
 - Browserdaten werden nur lokal per `localStorage` gesichert.
+- Exportdateien werden aus der bereinigten Markdown-Vorschau erzeugt. HTML bewahrt das Vorschau-Layout, PDF erzeugt ein A4-Dokument, DOCX nutzt native Word-Strukturen.

@@ -13,7 +13,7 @@ declare global {
     content?: string;
   } | null;
 
-  type ElectronMenuCommand = 'open' | 'save' | 'saveAs';
+  type ElectronMenuCommand = 'open' | 'save' | 'saveAs' | 'exportHtml' | 'exportPdf' | 'exportDocx';
 
   interface Window {
     mdeApi?: {
