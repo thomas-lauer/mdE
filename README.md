@@ -69,6 +69,14 @@ Die Release-Dateien enthalten bewusst keine Versionsnummer im Dateinamen:
 
 Die App nutzt eine numerische Hauptversion. Dieser Stand startet bei Version `2`. Bei jedem normalen Push auf `main` erhöht der Workflow `.github/workflows/version.yml` die Version in `package.json` und `package-lock.json` automatisch um `+1`.
 
+## Go-Variante
+
+Zusätzlich gibt es eine eigenständige Windows-Variante in Go unter `cmd/mde-go`. Sie nutzt keine Electron-/Node-/React-Laufzeit und bietet Editor, Go-gerenderte Textvorschau, Öffnen, Speichern, Speichern unter sowie Start per Dateiargument.
+
+```bash
+go build -ldflags="-H windowsgui" -o release/mdE-Go.exe ./cmd/mde-go
+```
+
 ## Deployment
 
 Das Projekt enthält einen GitHub-Actions-Workflow unter `.github/workflows/pages.yml`. Bei jedem Push auf `main` wird die App gebaut und per GitHub Pages veröffentlicht.
