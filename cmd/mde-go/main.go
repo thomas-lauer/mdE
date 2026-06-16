@@ -26,7 +26,7 @@ Diese Variante ist eine eigenstaendige Windows-App in Go.
 `
 
 const (
-	appTitle = "mdE Go - Markdown Editor"
+	appName = "mdE Go Win32"
 
 	idOpen   = 1001
 	idSave   = 1002
@@ -87,6 +87,8 @@ const (
 )
 
 var (
+	appVersion = "dev"
+
 	user32   = windows.NewLazySystemDLL("user32.dll")
 	kernel32 = windows.NewLazySystemDLL("kernel32.dll")
 	gdi32    = windows.NewLazySystemDLL("gdi32.dll")
@@ -131,6 +133,10 @@ var (
 	dirty       bool
 	updating    bool
 )
+
+func appTitle() string {
+	return fmt.Sprintf("%s - Version %s", appName, appVersion)
+}
 
 type wndClassEx struct {
 	cbSize        uint32
@@ -218,7 +224,7 @@ func run() error {
 	mainWindow, _, createErr = procCreateWindowExW.Call(
 		0,
 		uintptr(unsafe.Pointer(className)),
-		uintptr(unsafe.Pointer(windows.StringToUTF16Ptr(appTitle))),
+		uintptr(unsafe.Pointer(windows.StringToUTF16Ptr(appTitle()))),
 		wsOverlappedWindow|wsVisible,
 		cwUseDefault,
 		cwUseDefault,

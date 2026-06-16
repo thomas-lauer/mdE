@@ -74,8 +74,10 @@ Die App nutzt eine numerische Hauptversion. Dieser Stand startet bei Version `2`
 Zusätzlich gibt es eine eigenständige Windows-Variante in Go unter `cmd/mde-go`. Sie nutzt keine Electron-/Node-/React-Laufzeit und keine Go-GUI-Wrapperbibliothek, sondern direkte Win32-Aufrufe aus Go. Sie bietet Editor, Go-gerenderte Textvorschau, Öffnen, Speichern, Speichern unter sowie Start per Dateiargument.
 
 ```bash
-go build -ldflags="-H windowsgui" -o release/mdE-Go.exe ./cmd/mde-go
+go build -ldflags="-H windowsgui -X main.appVersion=6" -o release/mdE-Go.exe ./cmd/mde-go
 ```
+
+Der Fenstertitel zeigt `mdE Go Win32 - Version ...`, damit die direkte Win32-Variante eindeutig von der frueheren experimentellen Go-GUI-Version unterscheidbar ist.
 
 ## Deployment
 
