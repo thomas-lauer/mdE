@@ -18,6 +18,7 @@
 - Externe Links in der Electron-App duerfen nicht die lokale Editor-Ansicht ersetzen. Der GitHub-Link wird deshalb ueber `setWindowOpenHandler` abgefangen und mit `shell.openExternal` im Standardbrowser geoeffnet.
 - Startargumente fuer die Electron-EXE muessen im Main-Prozess verarbeitet werden, damit der Renderer keinen direkten Dateisystemzugriff bekommt. Die Datei wird ueber IPC an den Renderer uebergeben und bleibt als aktueller Speicherpfad erhalten.
 - Die neue Versionierung nutzt SemVer-kompatible Hauptversionen wie `2.0.0`, zeigt nach aussen aber Version `2`. Der GitHub-Workflow erhoeht bei normalen Pushes auf `main` automatisch die Hauptversion.
+- Das Scrollproblem in kleineren Fenstern lag an `min-height`-basierten Grid-Bereichen. Root, App-Shell, Workspace und Pane-Inhalte nutzen nun echte begrenzte Hoehen mit `minmax(0, 1fr)`, sodass Editor und Vorschau intern scrollen.
 
 ## Entscheidungen
 
