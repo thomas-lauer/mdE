@@ -1,7 +1,7 @@
 {
   "name": "mde",
   "private": true,
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Deutschsprachiger Markdown Editor als Web- und Electron-App.",
   "author": "Thomas Lauer",
   "type": "module",
