@@ -20,6 +20,7 @@
 - Die neue Versionierung nutzt SemVer-kompatible Hauptversionen wie `2.0.0`, zeigt nach aussen aber Version `2`. Der GitHub-Workflow erhoeht bei normalen Pushes auf `main` automatisch die Hauptversion.
 - Das Scrollproblem in kleineren Fenstern lag an `min-height`-basierten Grid-Bereichen. Root, App-Shell, Workspace und Pane-Inhalte nutzen nun echte begrenzte Hoehen mit `minmax(0, 1fr)`, sodass Editor und Vorschau intern scrollen.
 - Auf dem Rechner war kein Go installiert. Fuer die Go-Variante wurde eine portable Go-Toolchain von go.dev geladen und per SHA256 geprueft. Die Toolchain liegt lokal unter `.tools` und wird nicht versioniert.
+- Die erste Go-Variante nutzte `github.com/lxn/walk` und konnte auf diesem System mit `TTM_ADDTOOL failed` beim Tooltip-Setup crashen. Die Go-Variante wurde deshalb auf direkte Win32-Aufrufe mit `golang.org/x/sys/windows` umgestellt.
 
 ## Entscheidungen
 

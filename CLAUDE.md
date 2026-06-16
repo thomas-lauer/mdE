@@ -48,7 +48,7 @@ Die App-Version wird als numerische Hauptversion gefuehrt. Version 2 ist der Sta
 
 ## Go-Variante
 
-Die zusaetzliche Go-Variante liegt unter `cmd/mde-go`. Sie ist eine eigenstaendige Windows-App mit Go/Win32-GUI, direktem Dateizugriff und Go-basierter Markdown-Textvorschau. Sie verwendet keine Electron-, Node- oder React-Laufzeit.
+Die zusaetzliche Go-Variante liegt unter `cmd/mde-go`. Sie ist eine eigenstaendige Windows-App mit direkten Win32-Aufrufen aus Go, direktem Dateizugriff und Go-basierter Markdown-Textvorschau. Sie verwendet keine Electron-, Node-, React- oder Go-GUI-Wrapper-Laufzeit.
 
 ## Design
 
